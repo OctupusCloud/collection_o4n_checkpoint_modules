@@ -211,7 +211,6 @@ options:
         domain:
           type: str
           required: True
-
 """
 
 EXAMPLES = """
@@ -290,7 +289,7 @@ output:
       }
 """
 
-
+import traceback
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ..module_utils.o4n_checkpoint import login, publish, discard, logout, send_request
 
@@ -368,7 +367,8 @@ def set_access_rule(provider, layers, module):
 
     except Exception as error:
         status = False
-        msg_ret = f"error: <{error}>"
+        tb = traceback.format_exc()
+        msg_ret = f"Error: <{str(error)}>\n{tb}"
         msg_discard = discard(provider, token)
         msg_logout = logout(provider, token)
 
