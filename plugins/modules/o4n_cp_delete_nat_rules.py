@@ -102,29 +102,19 @@ output:
             {
                 "package_name": [
                     {
-                        "action": "Accept",
-                        "destination": [
-                            "Any"
-                        ],
-                        "enabled": false,
+                        "enabled": true,
                         "install-on": [
                             "Cluster-TEST"
                         ],
-                        "number": "",
-                        "section": "REGLA ACCESO",
-                        "service": [
-                            "Any"
-                        ],
-                        "source": [
-                            "Any",
-                        ],
-                        "time": [
-                            "Any"
-                        ],
-                        "track": "Log",
-                        "vpn": [
-                            "Any"
-                        ]
+                        "method": "static",
+                        "number": null,
+                        "original-destination": "Test1",
+                        "original-service": "Any",
+                        "original-source": "Test2",
+                        "translated-destination": "Original",
+                        "translated-service": "Original",
+                        "translated-source": "Original",
+                        "uid": "1ee53a07-a33a-46eb-85b1-d2dcd7981eaa"
                     }
                 ]
             }
@@ -178,8 +168,6 @@ def delete_nat_rule(provider, packages, module):
                 for key, value in rule.items():
                     if value:
                         payload[key.replace("_", "-")] = rule[key]
-
-                rule_number = rule["rule_number"]
 
                 status_show, response_show = send_request(
                     provider, token, url_show, payload
