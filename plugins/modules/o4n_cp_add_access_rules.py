@@ -114,6 +114,29 @@ options:
                 choices:
                 - 'present'
                 - 'absent'
+  provider:
+    type: dic
+    required: True
+    elements: dict
+    options:
+        host:
+          type: str
+          required: True
+        user:
+          type: str
+          required: True
+        password:
+          type: str
+          required: True
+        port:
+          type: integer
+          required: True
+        validate_certs:
+          type: boolean
+          required: True
+        domain:
+          type: str
+          required: True
 """
 
 EXAMPLES = """
@@ -155,21 +178,69 @@ output:
   sample:
     "output": {
         "changed": false,
-        "msg": [
+        "content": [
             {
+                "layer_name": [
+                    {
+                        "action": "Accept",
+                        "destination": [
+                            "Any"
+                        ],
+                        "enabled": false,
+                        "install-on": [
+                            "Cluster-TEST"
+                        ],
+                        "number": "",
+                        "section": "REGLA ACCESO",
+                        "service": [
+                            "Any"
+                        ],
+                        "source": [
+                            "Any",
+                        ],
+                        "time": [
+                            "Any"
+                        ],
+                        "track": "Log",
+                        "vpn": [
+                            "Any"
+                        ]
+                    }
+                ]
             }
         ],
+        "discard": [],
+        "logout": "OK",
         "failed": false,
+        "msg": {
+            "layer_name": "Se han agregado 1 reglas."
+        }
+        "publish": {
+            "progress-percentage": 100,
+            "status": "succeeded",
+            "suppressed": false,
+            "task-details": [
+                {
+                    "publishResponse": {
+                        "mode": "async",
+                        "numberOfPublishedChanges": 1
+                    },
+                    "revision": "4330f-0ddf-4bb4-92a6-1d73b9f"
+                }
+            ],
+            "task-id": "04567-89ab-cdef-87f4-5730958",
+            "task-name": "Publish operation"
+        }
       }
 """
 import traceback
 from ansible.module_utils.basic import AnsibleModule, env_fallback
-from ..module_utils import o4n_checkpoint
+from ..module_utils.o4n_checkpoint import login, publish, discard, logout, send_request, get_name_from_uid
 
 
 def set_access_rule(provider, token, payload, rule_number):
     url = "set-access-rule"
-    status, response = o4n_checkpoint.send_request(provider, token, url, payload)
+    status, response = send_request(provider, token, url, payload)
     if status:
         sources = [src["name"] for src in response["source"]]
         destinations = [dest["name"] for dest in response["destination"]]
@@ -207,7 +278,7 @@ def add_access_rule(provider, token, desired_rule, layer):
         if value:
             payload[key.replace("_", "-")] = desired_rule[key]
 
-    status, response = o4n_checkpoint.send_request(provider, token, url, payload)
+    status, response = send_request(provider, token, url, payload)
 
     if status:
         sources = [src["name"] for src in response["source"]]
@@ -264,17 +335,17 @@ def verify_objects_in_rule_and_set(
         )
 
         existing_destinations = [
-            o4n_checkpoint.get_name_from_uid(response, dest)
+            get_name_from_uid(response, dest)
             for dest in rule["destination"]
         ]
         existing_sources = [
-            o4n_checkpoint.get_name_from_uid(response, src) for src in rule["source"]
+            get_name_from_uid(response, src) for src in rule["source"]
         ]
         existing_service = [
-            o4n_checkpoint.get_name_from_uid(response, serv) for serv in rule["service"]
+            get_name_from_uid(response, serv) for serv in rule["service"]
         ]
         existing_time = [
-            o4n_checkpoint.get_name_from_uid(response, time) for time in rule["time"]
+            get_name_from_uid(response, time) for time in rule["time"]
         ]
 
         # Comprobar si todos los destinos deseados ya están en la regla
@@ -298,11 +369,11 @@ def verify_objects_in_rule_and_set(
                     provider, token, payload_set_rule, rule["rule-number"]
                 )
                 if validate is False:
-                    msg_discard = o4n_checkpoint.discard(provider, token)
-                    msg_logout = o4n_checkpoint.logout(provider, token)
+                    msg_discard = discard(provider, token)
+                    msg_logout = logout(provider, token)
                     module.fail_json(
                         failed=True,
-                        msg=response,
+                        msg=rule_set,
                         content=[],
                         publish=[],
                         discard=msg_discard,
@@ -337,11 +408,11 @@ def verify_objects_in_rule_and_set(
                     provider, token, payload_set_rule, rule["rule-number"]
                 )
                 if validate is False:
-                    msg_discard = o4n_checkpoint.discard(provider, token)
-                    msg_logout = o4n_checkpoint.logout(provider, token)
+                    msg_discard = discard(provider, token)
+                    msg_logout = logout(provider, token)
                     module.fail_json(
                         failed=True,
-                        msg=response,
+                        msg=rule_set,
                         content=[],
                         publish=[],
                         discard=msg_discard,
@@ -354,7 +425,7 @@ def verify_objects_in_rule_and_set(
 
 
 def add_and_set_access_rule(provider, layers, module):
-    token = o4n_checkpoint.login(provider)
+    token = login(provider)
     url = "show-access-rulebase"
     try:
         msg_ret_dict = {}
@@ -378,7 +449,7 @@ def add_and_set_access_rule(provider, layers, module):
                     "use-object-dictionary": True,
                 }
 
-                status, response = o4n_checkpoint.send_request(
+                status, response = send_request(
                     provider, token, url, payload
                 )
                 if status:
@@ -423,8 +494,8 @@ def add_and_set_access_rule(provider, layers, module):
 
                     page_number += 1
                 else:
-                    msg_discard = o4n_checkpoint.discard(provider, token)
-                    msg_logout = o4n_checkpoint.logout(provider, token)
+                    msg_discard = discard(provider, token)
+                    msg_logout = logout(provider, token)
                     module.fail_json(
                         failed=True,
                         msg=response,
@@ -441,11 +512,11 @@ def add_and_set_access_rule(provider, layers, module):
                         provider, token, desired_rule, layer
                     )
                     if validate is False:
-                        msg_discard = o4n_checkpoint.discard(provider, token)
-                        msg_logout = o4n_checkpoint.logout(provider, token)
+                        msg_discard = discard(provider, token)
+                        msg_logout = logout(provider, token)
                         module.fail_json(
                             failed=True,
-                            msg=response,
+                            msg=rule_add,
                             content=[],
                             publish=[],
                             discard=msg_discard,
@@ -458,8 +529,8 @@ def add_and_set_access_rule(provider, layers, module):
             output.append(layer_dict)
             msg_ret_dict[f"{layer}"] = f"Se han agregado '{len(rule_list)}' reglas."
 
-        task_detail = o4n_checkpoint.publish(provider, token)
-        msg_logout = o4n_checkpoint.logout(provider, token)
+        task_detail = publish(provider, token)
+        msg_logout = logout(provider, token)
         status = True
         msg_ret = msg_ret_dict
 
@@ -469,8 +540,8 @@ def add_and_set_access_rule(provider, layers, module):
         status = False
         tb = traceback.format_exc()
         msg_ret = f"Error: <{str(error)}>\n{tb}"
-        msg_discard = o4n_checkpoint.discard(provider, token)
-        msg_logout = o4n_checkpoint.logout(provider, token)
+        msg_discard = discard(provider, token)
+        msg_logout = logout(provider, token)
 
         return status, msg_ret, [], [], msg_discard, msg_logout
 
@@ -541,7 +612,7 @@ def main():
                                 type="dict",
                                 options=dict(
                                     type=dict(required=False, type="str"),
-                                    accounting=dict(required=False, type="bool"),
+                                    accounting=dict(required=False, type="bool", default=False),
                                 ),
                             ),
                             vpn=dict(required=False, type="raw", choice=[str, list]),
