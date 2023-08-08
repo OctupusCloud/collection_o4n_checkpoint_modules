@@ -30,7 +30,7 @@ options:
     options:
       name:
         description:
-          - Layer identified by the name or UID.
+          - package identified by the name or UID.
         type: str
         required: True
       rules:
@@ -113,9 +113,9 @@ options:
 
 EXAMPLES = """
 tasks:
-  - name: Set access rules
+  - name: Add NAT rules
     o4n_cp_add_nat_rules:
-      layers:
+      package:
         - name: "Web_Policy_Test"
           rules:
             - position: 1
@@ -142,7 +142,7 @@ output:
         "changed": false,
         "content": [
             {
-                "layer_name": [
+                "package_name": [
                     {
                         "enabled": true,
                         "install-on": [
