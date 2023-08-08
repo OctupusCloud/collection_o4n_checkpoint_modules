@@ -11,10 +11,10 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = """
 ---
-module: o4n_cp_set_nat_rules
-short_description: Set NAT rules of the selected package.
+module: o4n_cp_delete_nat_rules
+short_description: Delete NAT rules of the selected package.
 description:
-  - Set NAT rules of the selected layer.
+  - Delete NAT rules of the selected layer.
   - All operations are performed over Web Services API.
 version_added: "1.0"
 author: "Randy Rozo"
@@ -35,62 +35,26 @@ options:
         required: True
       rules:
         description:
-          - package identified by the name or UID.
+          - List of rules.
         type: list
         required: False
         elements: dict
         options:
-            position:
-                rule_number:
-                    description:
+            rule_number:
+                description:
                     - Rule number.
-                    type: str
-                enabled:
-                    description:
-                    - Enable/Disable the rule.
-                    type: bool
-                install_on:
-                    description:
-                    - Which Gateways identified by the name or UID to install the policy on.
-                    type: list
-                    elements: str
-                method:
-                    description:
-                    - Nat method.
-                    type: str
-                    choices: ['static', 'hide', 'nat64', 'nat46']
-                new_position:
-                    description:
-                    - New position in the rulebase.
-                    type: str
-                original_destination:
-                    description:
-                    - Original destination.
-                    type: str
-                original_service:
-                    description:
-                    - Original service.
-                    type: str
-                original_source:
-                    description:
-                    - Original source.
-                    type: str
-                translated_destination:
-                    description:
-                    - Translated  destination.
-                    type: str
-                translated_service:
-                    description:
-                    - Translated  service.
-                    type: str
-                translated_source:
-                    description:
-                    - Translated  source.
-                    type: str
-                comments:
-                    description:
-                    - Comments string.
-                    type: str
+                type: integer
+                required: True
+            uid:
+                description:
+                    - Object unique identifier.
+                type: str
+                required: True
+            name:
+                description:
+                    - Object name.
+                type: str
+                required: True
   provider:
     type: dic
     required: True
@@ -118,18 +82,17 @@ options:
 
 EXAMPLES = """
 tasks:
-  - name: Set NAT rules
-    o4n_cp_set_nat_rules:
+  - name: Delete NAT rules
+    o4n_cp_delete_nat_rules:
       package:
         - name: "Web_Policy_Test"
           rules:
-            - uid: 9ac113a8-751e-4f28-afed-3c278067820f
-              original_destination: Test1
+            - 'uid': '8e621a59-52fc-491c-a470-8cd20a0dccaf'
     register: output
 """
 RETURN = """
 output:
-  description: The checkpoint Set NAT rules output
+  description: The checkpoint Delete NAT rules output
   type: dict
   returned: allways
   sample:
@@ -139,19 +102,29 @@ output:
             {
                 "package_name": [
                     {
-                        "enabled": true,
+                        "action": "Accept",
+                        "destination": [
+                            "Any"
+                        ],
+                        "enabled": false,
                         "install-on": [
                             "Cluster-TEST"
                         ],
-                        "method": "static",
-                        "number": 1,
-                        "original-destination": "Test1",
-                        "original-service": "Any",
-                        "original-source": "Test2",
-                        "package": "TestCore",
-                        "translated-destination": "Original",
-                        "translated-service": "Original",
-                        "translated-source": "Original"
+                        "number": "",
+                        "section": "REGLA ACCESO",
+                        "service": [
+                            "Any"
+                        ],
+                        "source": [
+                            "Any",
+                        ],
+                        "time": [
+                            "Any"
+                        ],
+                        "track": "Log",
+                        "vpn": [
+                            "Any"
+                        ]
                     }
                 ]
             }
@@ -160,7 +133,7 @@ output:
         "logout": "OK",
         "failed": false,
         "msg": {
-            "layer_name": "Se han modificado 1 reglas."
+            "layer_name": "Se han eliminado 1 reglas."
         }
         "publish": {
             "progress-percentage": 100,
@@ -181,14 +154,16 @@ output:
       }
 """
 
+
 import traceback
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ..module_utils.o4n_checkpoint import login, publish, discard, logout, send_request
 
 
-def set_nat_rule(provider, packages, module):
+def delete_nat_rule(provider, packages, module):
     token = login(provider)
-    url = "set-nat-rule"
+    url_show = "show-nat-rule"
+    url_set = "delete-nat-rule"
     try:
         msg_ret_dict = {}
         output = []
@@ -204,35 +179,58 @@ def set_nat_rule(provider, packages, module):
                     if value:
                         payload[key.replace("_", "-")] = rule[key]
 
-                status, response = send_request(provider, token, url, payload)
+                rule_number = rule["rule_number"]
 
-                if status:
-                    rule_add = {
-                        "uid": response["uid"],
-                        "enabled": response["enabled"],
+                status_show, response_show = send_request(
+                    provider, token, url_show, payload
+                )
+                status_set, response_set = send_request(
+                    provider, token, url_set, payload
+                )
+
+                if status_show:
+                    rule_set = {
+                        "uid": response_show["uid"],
+                        "enabled": response_show["enabled"],
                         "number": rule["rule_number"],
-                        "method": response["method"],
-                        "original-source": response["original-source"]["name"],
-                        "original-destination": response["original-destination"][
+                        "method": response_show["method"],
+                        "original-source": response_show["original-source"]["name"],
+                        "original-destination": response_show["original-destination"][
                             "name"
                         ],
-                        "original-service": response["original-service"]["name"],
-                        "translated-source": response["translated-source"]["name"],
-                        "translated-destination": response["translated-destination"][
+                        "original-service": response_show["original-service"]["name"],
+                        "translated-source": response_show["translated-source"]["name"],
+                        "translated-destination": response_show[
+                            "translated-destination"
+                        ]["name"],
+                        "translated-service": response_show["translated-service"][
                             "name"
                         ],
-                        "translated-service": response["translated-service"]["name"],
                         "install-on": [
-                            install_on["name"] for install_on in response["install-on"]
+                            install_on["name"]
+                            for install_on in response_show["install-on"]
                         ],
                     }
-                    rule_list.append(rule_add)
+                    if status_set:
+                        if response_set["message"] == "OK":
+                            rule_list.append(rule_set)
+                    else:
+                        msg_discard = discard(provider, token)
+                        msg_logout = logout(provider, token)
+                        module.fail_json(
+                            failed=True,
+                            msg=response_set,
+                            content=[],
+                            publish=[],
+                            discard=msg_discard,
+                            logout=msg_logout,
+                        )
                 else:
                     msg_discard = discard(provider, token)
                     msg_logout = logout(provider, token)
                     module.fail_json(
                         failed=True,
-                        msg=response,
+                        msg=response_show,
                         content=[],
                         publish=[],
                         discard=msg_discard,
@@ -241,7 +239,7 @@ def set_nat_rule(provider, packages, module):
 
             package_dict[f"{package}"] = rule_list
             output.append(package_dict)
-            msg_ret_dict[f"{package}"] = f"Se han modificado '{len(rule_list)}' reglas."
+            msg_ret_dict[f"{package}"] = f"Se han eliminado '{len(rule_list)}' reglas."
 
         task_detail = publish(provider, token)
         msg_logout = logout(provider, token)
@@ -274,29 +272,9 @@ def main():
                         elements="dict",
                         default=[],
                         options=dict(
+                            rule_number=dict(required=False, type="int"),
                             uid=dict(required=False, type="str"),
-                            rule_number=dict(
-                                required=False, type="raw", choice=[str, int, dict]
-                            ),
                             name=dict(required=False, type="str"),
-                            new_position=dict(required=False, type="int"),
-                            new_name=dict(required=False, type="str"),
-                            enabled=dict(required=False, type="bool"),
-                            method=dict(
-                                required=False,
-                                type="str",
-                                choice=["static", "hide", "nat64", "nat46", "cgnat"],
-                            ),
-                            original_destination=dict(required=False, type="str"),
-                            original_service=dict(required=False, type="str"),
-                            original_source=dict(required=False, type="str"),
-                            translated_destination=dict(required=False, type="str"),
-                            translated_service=dict(required=False, type="str"),
-                            translated_source=dict(required=False, type="str"),
-                            install_on=dict(
-                                required=False, type="raw", choice=[str, list]
-                            ),
-                            comments=dict(required=False, type="str"),
                         ),
                         required_one_of=[
                             ("rule_number", "name", "uid"),
@@ -342,11 +320,10 @@ def main():
             ),
         )
     )
-
     packages = module.params["packages"]
     provider = module.params["provider"]
 
-    success, msg_ret, output, task_detail, msg_discard, msg_logout = set_nat_rule(
+    success, msg_ret, output, task_detail, msg_discard, msg_logout = delete_nat_rule(
         provider, packages, module
     )
     if success:
