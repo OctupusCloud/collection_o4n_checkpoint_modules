@@ -58,14 +58,14 @@ output:
 
 import traceback
 from ansible.module_utils.basic import AnsibleModule, env_fallback
-from ..module_utils.o4n_checkpoint import login, publish, discard, logout, send_request
+from ..module_utils.o4n_checkpoint import login, discard, logout, send_request
 
 
 def verify_policy(provider, policy_package, token):
     url = "verify-policy"
     payload = {
-            "policy-package" : policy_package
-        }
+        "policy-package" : policy_package
+    }
     status, response = send_request(provider, token, url, payload)
     if status:
         task_id = response["task-id"]
@@ -93,8 +93,8 @@ def show_task(provider, policy_package, module):
         url = "show-task"
         while task_status == "in progress":
             payload = {
-                    "task-id" : task_id
-                }
+                "task-id" : task_id
+            }
 
             status_response, response = send_request(provider, token, url, payload)
             if status_response:
@@ -136,16 +136,16 @@ def main():
     module = AnsibleModule(
         argument_spec = dict(
             policy_package = dict(required=True, type='str'),
-            provider = dict(
-                type = 'dict',
-                default= {},
-                options = dict(
-                    host = dict(type='str', required=True, fallback=(env_fallback, ['CP_HOST'])),
-                    user = dict(type='str', required=True, fallback=(env_fallback, ['CP_USER', 'ANSIBLE_NET_USERNAME'])),
-                    password = dict(type='str', required=True, no_log=True, fallback=(env_fallback, ['CP_PASSWORD', 'ANSIBLE_NET_USERNAME'])),
-                    port = dict(type='int', default=443, fallback=(env_fallback, ['CP_PORT'])),
-                    validate_certs = dict(type='bool', default=False, fallback=(env_fallback, ['CP_VALIDATE_CERTS'])),
-                    domain = dict(type='str', required=True, fallback=(env_fallback, ['CP_DOMAIN'])),
+            provider=dict(
+                type='dict',
+                default={},
+                options=dict(
+                    host=dict(type='str', required=True, fallback=(env_fallback, ['CP_HOST'])),
+                    user=dict(type='str', required=True, fallback=(env_fallback, ['CP_USER', 'ANSIBLE_NET_USERNAME'])),
+                    password=dict(type='str', required=True, no_log=True, fallback=(env_fallback, ['CP_PASSWORD', 'ANSIBLE_NET_USERNAME'])),
+                    port=dict(type='int', default=443, fallback=(env_fallback, ['CP_PORT'])),
+                    validate_certs=dict(type='bool', default=False, fallback=(env_fallback, ['CP_VALIDATE_CERTS'])),
+                    domain=dict(type='str', required=True, fallback=(env_fallback, ['CP_DOMAIN'])),
                 )
             )
         ),
