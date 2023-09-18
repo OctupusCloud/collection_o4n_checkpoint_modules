@@ -176,13 +176,13 @@ def delete_rule_deactivated(provider: dict, layers: list, module: object):
                         if rules["type"] == "access-section":
                             section = rules["name"]
                             for rule in rules["rulebase"]:
-                                if rule['enabled'] == False:
+                                if rule['enabled'] is False:
                                     uid = rule['uid']
                                     status_delete, response_delete = delete_access_role(provider, token, response, rule, section, uid, layer)
                                     if status_delete:
                                         rule_list_deleted.append(response_delete)
                         elif rules["type"] == "access-rule":
-                            if rules['enabled'] == False:
+                            if rules['enabled'] is False:
                                 uid = rules['uid']
                                 status_delete, response_delete = delete_access_role(provider, token, response, rules, "N/A", uid, layer)
                                 if status_delete:
@@ -229,7 +229,7 @@ def delete_rule_deactivated(provider: dict, layers: list, module: object):
 
 def main():
     module = AnsibleModule(
-        argument_spec = dict(
+        argument_spec=dict(
             layers=dict(required=True, type='list'),
             provider=dict(
                 type="dict",

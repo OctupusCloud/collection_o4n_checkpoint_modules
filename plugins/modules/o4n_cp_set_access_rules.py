@@ -67,7 +67,7 @@ options:
                 required: False
             action:
                 description:
-                    - "Accept", "Drop", "Ask", "Inform", "Reject", "User Auth", "Client Auth", "Apply Layer".
+                    - a "Accept", "Drop", "Ask", "Inform", "Reject", "User Auth", "Client Auth", "Apply Layer".
                 type: str
                 required: False
             destination:
@@ -179,7 +179,7 @@ options:
                     Type:
                       type: str
                       description:
-                        - "Log", "Extended Log", "Detailed Log", "None"
+                        - a "Log", "Extended Log", "Detailed Log", "None"
             vpn:
                 type: str
                 description:
@@ -220,9 +220,9 @@ tasks:
       layers:
         - name: "Web_Policy_Test"
           rules:
-            - 'uid': '8e621a59-52fc-491c-a470-8cd20a0dccaf'
-              'source':
-                'add': 'Test3'
+            - uid: '8e621a59-52fc-491c-a470-8cd20a0dccaf'
+              source:
+                add: 'Test3'
     register: output
 """
 RETURN = """
@@ -269,7 +269,7 @@ output:
         "failed": false,
         "msg": {
             "layer_name": "Se han modificado 1 reglas."
-        }
+        },
         "publish": {
             "progress-percentage": 100,
             "status": "succeeded",

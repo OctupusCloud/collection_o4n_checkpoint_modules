@@ -233,9 +233,9 @@ def delete_rule_name(provider, layers, names, module=""):
 
 def main():
     module = AnsibleModule(
-        argument_spec = dict(
-            layers = dict(required=True, type='list'),
-            names = dict(required=True, type='list'),
+        argument_spec=dict(
+            layers=dict(required=True, type='list'),
+            names=dict(required=True, type='list'),
             provider=dict(
                 type="dict",
                 default={},

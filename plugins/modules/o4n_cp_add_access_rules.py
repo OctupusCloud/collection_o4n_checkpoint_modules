@@ -14,7 +14,8 @@ DOCUMENTATION = """
 module: o4n_cp_add_access_rules
 short_description: Manages access-rules objects on Check Point over Web Services API
 description:
-  - Manages access rule objects in Check Point devices, including creation and updating if the rule to be created matches another, it will add missing sources or destinations
+  - Manages access rule objects in Check Point devices, including creation and updating if the rule to be created matches another,
+  - it will add missing sources or destinations
   - All operations are performed over Web Services API.
 version_added: "1.0"
 author: "Randy Rozo"
@@ -214,8 +215,8 @@ output:
         "failed": false,
         "msg": {
             "layer_name": "Se han agregado 1 reglas."
-        }
-        "publish": {
+        },
+        "publish":{
             "progress-percentage": 100,
             "status": "succeeded",
             "suppressed": false,

@@ -64,7 +64,7 @@ from ..module_utils.o4n_checkpoint import login, discard, logout, send_request
 def verify_policy(provider, policy_package, token):
     url = "verify-policy"
     payload = {
-        "policy-package" : policy_package
+        "policy-package": policy_package
     }
     status, response = send_request(provider, token, url, payload)
     if status:
@@ -93,7 +93,7 @@ def show_task(provider, policy_package, module):
         url = "show-task"
         while task_status == "in progress":
             payload = {
-                "task-id" : task_id
+                "task-id": task_id
             }
 
             status_response, response = send_request(provider, token, url, payload)
@@ -134,8 +134,8 @@ def show_task(provider, policy_package, module):
 
 def main():
     module = AnsibleModule(
-        argument_spec = dict(
-            policy_package = dict(required=True, type='str'),
+        argument_spec=dict(
+            policy_package=dict(required=True, type='str'),
             provider=dict(
                 type='dict',
                 default={},

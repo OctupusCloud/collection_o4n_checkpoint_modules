@@ -166,7 +166,7 @@ output:
         "failed": false,
         "msg": {
             "layer_name": "Se han agregado 1 reglas."
-        }
+        },
         "publish": {
             "progress-percentage": 100,
             "status": "succeeded",

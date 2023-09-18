@@ -261,7 +261,7 @@ def delete_rule_expired(provider, layers, desired_time, module):
 
 def main():
     module = AnsibleModule(
-        argument_spec = dict(
+        argument_spec=dict(
             layers=dict(required=True, type='list'),
             time=dict(required=True, type='str'),
             provider=dict(
