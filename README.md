@@ -30,28 +30,28 @@ Collection only supports python 3.6 and above
 - o4n_cp_threat_rule_debugging_disabled
   Its main function is the ability to remove (or "prune") threat rules that have been disabled on Checkpoint  
 - o4n_cp_add_access_rules
-  Manages access rule objects in Check Point devices, including creation and updating if the rule to be created matches another, it will add missing sources or destinations
+  Manages access rule objects in Check Point devices, including creation and updating if the rule to be created matches another, it will add missing sources or destinations  
 - o4n_cp_add_https_rules
-  Manages https rule objects in Check Point devices, including creation and updating if the rule to be created matches another, it will add missing sources or destinations
+  Manages https rule objects in Check Point devices, including creation and updating if the rule to be created matches another, it will add missing sources or destinations  
 - o4n_cp_add_nat_rules
-  Add NAT rules of the selected layer.
+  Add NAT rules of the selected layer.  
 - o4n_cp_add_threat_rules
-  Manages https rule objects in Check Point devices, including creation and updating if the rule to be created matches another, it will add missing sources, protected scope or destinations
+  Manages https rule objects in Check Point devices, including creation and updating if the rule to be created matches another, it will add missing sources, protected scope or destinations  
 - o4n_cp_delete_access_rules
-  Delete access rules of the selected layer.
+  Delete access rules of the selected layer.  
 - o4n_cp_delete_https_rules
-  Delete https rules of the selected layer.
+  Delete https rules of the selected layer.  
 - o4n_cp_delete_nat_rules
-  Delete nat rules of the selected layer.
+  Delete nat rules of the selected layer.  
 - o4n_cp_delete_threat_rules
-  Delete threat rules of the selected layer.
+  Delete threat rules of the selected layer.  
 - o4n_cp_set_access_rules
-  Set access rules of the selected layer.
+  Set access rules of the selected layer.  
 - o4n_cp_set_https_rules
-  Set https rules of the selected layer.
+  Set https rules of the selected layer.  
 - o4n_cp_set_nat_rules
-  Set nat rules of the selected layer.
+  Set nat rules of the selected layer.  
 - o4n_cp_set_threat_rules
-  Set threat rules of the selected layer.
+  Set threat rules of the selected layer.  
 - o4n_cp_verify_policy
-  Verifies the policy of the selected package.
+  Verifies the policy of the selected package.  
