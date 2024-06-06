@@ -276,6 +276,7 @@ def main():
             publish=task_detail,
             discard=msg_discard,
             logout=msg_logout,
+            changed=success
         )
     else:
         module.fail_json(
